@@ -1,0 +1,15 @@
+spring:
+  cloud:
+    nacos:
+      config:
+        server-addr: 150.158.172.237:8848
+        namespace: mall3
+      discovery:
+        namespace: mall3
+        server-addr: 150.158.172.237:8848
+      username: nacos
+      password: nacos
+  application:
+    name: mall3-gateway
+server:
+  port: 1000

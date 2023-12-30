@@ -1,0 +1,45 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: product_route
+          uri: lb://mall3-product
+          predicates:
+            - Path=/api/product/**
+          filters:
+            - RewritePath= /api/(?<segment>.*),/$\{segment}
+
+        - id: coupon_route
+          uri: lb://mall3-coupon
+          predicates:
+            - Path=/api/coupon/**
+          filters:
+            - RewritePath= /api/(?<segment>.*),/$\{segment}
+
+        - id: third_party_route
+          uri: lb://mall3-third-party
+          predicates:
+            - Path=/api/thirdparty/**
+          filters:
+            - RewritePath= /api/thirdparty/(?<segment>.*),/$\{segment}
+
+        - id: member_route
+          uri: lb://mall3-member
+          predicates:
+            - Path=/api/member/**
+          filters:
+            - RewritePath= /api/(?<segment>.*),/$\{segment}
+
+        - id: ware_route
+          uri: lb://mall3-ware
+          predicates:
+            - Path=/api/ware/**
+          filters:
+            - RewritePath= /api/(?<segment>.*),/$\{segment}
+
+        - id: admin_route
+          uri: lb://renren-fast
+          predicates:
+            - Path=/api/**
+          filters:
+            - RewritePath= /api/(?<segment>.*),/renren-fast/$\{segment}
