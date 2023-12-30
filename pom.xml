@@ -16,6 +16,9 @@
         <module>mall3-order</module>
         <module>mall3-product</module>
         <module>mall3-ware</module>
+        <module>renren-fast</module>
+        <module>renren-generator</module>
+        <module>mall3-common</module>
     </modules>
 
 </project>
