@@ -32,9 +32,9 @@ public class CategoryController {
     private CategoryService categoryService;
 
     /**
-     * 列表
+     * 树形菜单
      */
-    @RequestMapping("/list")
+    @RequestMapping("/list/tree")
     //@RequiresPermissions("product:category:list")
     public R list(@RequestParam Map<String, Object> params){
         PageUtils page = categoryService.queryPage(params);
