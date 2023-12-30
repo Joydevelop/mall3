@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: mall3-coupon
+  cloud:
+    nacos:
+      config:
+        server-addr: 150.158.172.237:8848
+      username: nacos
+      password: nacos
