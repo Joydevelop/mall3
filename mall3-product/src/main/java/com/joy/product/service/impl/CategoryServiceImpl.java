@@ -42,7 +42,6 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
                 .sorted(Comparator.comparingInt(m -> (m.getSort() == null ? 0 : m.getSort())))
                 .toList();
     }
-
     /**
      * 递归
      * @param root
@@ -55,5 +54,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
                   .peek(item -> item.setChildren(getChildren(item, all)))
                   .sorted(Comparator.comparingInt(m -> (m.getSort() == null ? 0 : m.getSort())))
                   .toList();
+    }
+
+    @Override
+    public void removeMenuByIds(List<Long> longs) {
+        baseMapper.deleteBatchIds(longs);
     }
 }

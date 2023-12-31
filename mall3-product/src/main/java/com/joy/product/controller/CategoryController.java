@@ -1,6 +1,7 @@
 package com.joy.product.controller;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -76,14 +77,25 @@ public class CategoryController {
         return R.ok();
     }
 
+
+
+    /**
+     * 修改
+     */
+    @RequestMapping("/update/sort")
+    //@RequiresPermissions("product:category:update")
+    public R updateSort(@RequestBody CategoryEntity[] category){
+        categoryService.updateBatchById(Arrays.asList(category));
+
+        return R.ok();
+    }
     /**
      * 删除
      */
     @RequestMapping("/delete")
     //@RequiresPermissions("product:category:delete")
     public R delete(@RequestBody Long[] catIds){
-		categoryService.removeByIds(Arrays.asList(catIds));
-
+		categoryService.removeMenuByIds(List.of(catIds));
         return R.ok();
     }
 
