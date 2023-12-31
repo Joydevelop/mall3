@@ -19,6 +19,7 @@
         <module>mall3-common</module>
         <module>mall3-gateway</module>
         <module>renren-fast</module>
+        <module>mall3-third-party</module>
     </modules>
 
 </project>
