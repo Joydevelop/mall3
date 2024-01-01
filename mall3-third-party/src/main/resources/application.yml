@@ -1,10 +1,6 @@
-spring:
-  cloud:
-    alicloud:
-      access-key: LTAI5tBvP6sbjG2Pdnf9Mwkv
-      secret-key: KBnTMBQqn43bX35TiznZA4GWfUbvgK
-      oss:
-        endpoint: oss-cn-hangzhou.aliyuncs.com
-        bucket: mall3-test
+mall3:
+  oss:
+    endpoint: oss-cn-hangzhou.aliyuncs.com
+    bucket: mall3-test
 server:
   port: 30000

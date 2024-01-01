@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.joy.product.dao.AttrAttrgroupRelationDao">
+    <delete id="deleteBatchRelation">
+delete from pms_attr_attrgroup_relation  where
+    <foreach collection="entities" item="item" separator=" or ">
+        (attr_id=#{item.attrId} and attr_group_id=#{item.attrGroupId})
+    </foreach>
+    </delete>
+</mapper>
