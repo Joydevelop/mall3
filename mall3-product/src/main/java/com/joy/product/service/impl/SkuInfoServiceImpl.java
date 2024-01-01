@@ -1,7 +1,9 @@
 package com.joy.product.service.impl;
 
 import org.springframework.stereotype.Service;
+
 import java.util.Map;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -21,6 +23,22 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
         IPage<SkuInfoEntity> page = this.page(
                 new Query<SkuInfoEntity>().getPage(params),
                 new QueryWrapper<SkuInfoEntity>()
+        );
+
+        return new PageUtils(page);
+    }
+
+    @Override
+    public void saveSkuInfo(SkuInfoEntity skuInfoEntity) {
+        save(skuInfoEntity);
+    }
+
+    @Override
+    public PageUtils queryPageByCondition(Map<String, Object> params) {
+        QueryWrapper<SkuInfoEntity> wrapper = new QueryWrapper<>();
+        //TODO 搜索条件
+        IPage<SkuInfoEntity> page = this.page(
+                new Query<SkuInfoEntity>().getPage(params), wrapper
         );
 
         return new PageUtils(page);

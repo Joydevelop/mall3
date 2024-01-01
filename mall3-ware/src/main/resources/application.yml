@@ -11,7 +11,8 @@ spring:
         namespace: mall3
       username: nacos
       password: nacos
-
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*.xml
   global-config:
