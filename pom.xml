@@ -20,6 +20,7 @@
         <module>mall3-gateway</module>
         <module>renren-fast</module>
         <module>mall3-third-party</module>
+        <module>mall3-search</module>
     </modules>
 
 </project>

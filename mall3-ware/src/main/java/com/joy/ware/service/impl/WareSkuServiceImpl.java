@@ -1,8 +1,10 @@
 package com.joy.ware.service.impl;
 
+import com.joy.ware.vo.SkuHasStockVo;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -35,6 +37,18 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
         );
 
         return new PageUtils(page);
+    }
+
+    @Override
+    public List<SkuHasStockVo> getSkuHasStock(List<Long> skuIds) {
+     return skuIds.stream().map(skuId -> {
+            SkuHasStockVo skuHasStockVo = new SkuHasStockVo();
+            Long count = baseMapper.getSkuHasStock(skuId);
+            skuHasStockVo.setHasStock(count != null && count > 0);
+            skuHasStockVo.setSkuId(skuId);
+            return skuHasStockVo;
+        }).toList();
+
     }
 
 }

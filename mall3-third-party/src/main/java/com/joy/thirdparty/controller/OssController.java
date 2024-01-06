@@ -39,7 +39,7 @@ public class OssController {
         String format=new SimpleDateFormat("yyyy-MM-dd").format(System.currentTimeMillis());
         String dir = format + "/";
         //授权
-        EnvironmentVariableCredentialsProvider credentialsProvider = CredentialsProviderFactory.newEnvironmentVariableCredentialsProvider();
+        DefaultCredentialProvider credentialsProvider = CredentialsProviderFactory.newDefaultCredentialProvider("LTAI5tDZxmaFVCRdB819DoXo","8qNwkYJAnzSJEddha60jxTzBB0IpgC");
         OSS ossClient = new OSSClientBuilder().build(endPoint, credentialsProvider);
         //过期时间
         long expireTime = 30;

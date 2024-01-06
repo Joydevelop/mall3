@@ -1,20 +1,29 @@
 package com.joy.product.service.impl;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.nacos.common.utils.MapUtil;
+import com.alibaba.nacos.shaded.io.grpc.internal.JsonUtil;
+import com.fasterxml.jackson.core.JsonParser;
 import com.joy.common.to.SkuReductionTo;
 import com.joy.common.to.SpuBoundTo;
+import com.joy.common.to.es.SkuEsModel;
+import com.joy.common.utils.R;
 import com.joy.product.entity.*;
 import com.joy.product.feign.CouponFeignService;
+import com.joy.product.feign.SearchFeignService;
+import com.joy.product.feign.WareFeignService;
 import com.joy.product.service.*;
 import com.joy.product.vo.*;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang.StringUtils;
+import org.apache.tomcat.util.json.JSONParser;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -24,6 +33,7 @@ import com.joy.common.utils.Query;
 
 import com.joy.product.dao.SpuInfoDao;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 
 @Service("spuInfoService")
@@ -44,6 +54,14 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
     private SkuSaleAttrValueService skuSaleAttrValueService;
     @Autowired
     private CouponFeignService couponFeignService;
+    @Autowired
+    private BrandService brandService;
+    @Autowired
+    private CategoryService categoryService;
+    @Resource
+    private WareFeignService wareFeignService;
+    @Resource
+    private SearchFeignService searchFeignService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -178,6 +196,58 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         }
         IPage<SpuInfoEntity> page = this.page(new Query<SpuInfoEntity>().getPage(params), wrapper);
         return new PageUtils(page);
+    }
+
+    @Override
+    public void up(Long spuId) {
+        // 1.查出当前spuId对应的所有sku信息，品牌的名字
+        List<SkuInfoEntity> skus = skuInfoService.getSkusBySpuId(spuId);
+
+        List<Long> skuIds = skus.stream().map(SkuInfoEntity::getSkuId).toList();
+
+        List<ProductAttrValueEntity> baseAttrs = productAttrValueService.baseAttrListForSpu(spuId);
+        List<Long> attrIds = baseAttrs.stream().map(ProductAttrValueEntity::getAttrId).toList();
+        List<Long> searchAttrIds = attrService.selectSearchAttrs(attrIds);
+        Set<Long> idSet = new HashSet<>(searchAttrIds);
+        List<SkuEsModel.Attr> attrList = baseAttrs.stream().filter(item -> idSet.contains(item.getAttrId()))
+                                                  .map(item -> {
+                                                      SkuEsModel.Attr attr = new SkuEsModel.Attr();
+                                                      BeanUtils.copyProperties(item, attr);
+                                                      return attr;
+                                                  })
+                                                  .toList();
+        //设置库存信息
+        R<List<SkuHasStockVo>> skuHasStock = wareFeignService.getSkuHasStock(skuIds);
+        List<SkuHasStockVo> skuHasStockVos = skuHasStock.getData();
+        Map<Long, Boolean> stockMap;
+        if (!CollectionUtils.isEmpty(skuHasStockVos)){
+            stockMap = skuHasStockVos.stream().collect(Collectors.toMap(SkuHasStockVo::getSkuId, SkuHasStockVo::getHasStock));
+        } else {
+            stockMap = null;
+        }
+
+
+        List<SkuEsModel> list = skus.stream().map(sku -> {
+            SkuEsModel skuEsModel = new SkuEsModel();
+            BeanUtils.copyProperties(sku, skuEsModel);
+            skuEsModel.setSkuPrice(sku.getPrice());
+            skuEsModel.setSkuImg(sku.getSkuDefaultImg());
+            //热度评分
+            skuEsModel.setHotScore(0L);
+            skuEsModel.setHasStock(!MapUtil.isEmpty(stockMap) && stockMap.get(sku.getSkuId()));
+            //查询品牌和分类的名字
+            BrandEntity brandEntity = brandService.getById(sku.getBrandId());
+            skuEsModel.setBrandName(brandEntity.getName());
+            skuEsModel.setBrandImg(brandEntity.getLogo());
+            CategoryEntity categoryEntity = categoryService.getById(sku.getCatalogId());
+            skuEsModel.setCatalogName(categoryEntity.getName());
+            skuEsModel.setAttrs(attrList);
+            return skuEsModel;
+
+        }).toList();
+        searchFeignService.productStatusUp(list);
+        //修改上架状态
+        baseMapper.updateSpuStatus(spuId, 1);
     }
 
 }
